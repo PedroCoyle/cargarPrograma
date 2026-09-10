@@ -9,8 +9,9 @@ class Profesor extends Model
 {
     use HasFactory;
 
-    const ROL_ADMIN = 1;
-    const ROL_PROFESOR = 2;
+const ROL_PROFESOR = 1;
+const ROL_PRECEPTOR = 2;
+const ROL_ADMIN = 3;
 
     protected $table = 'profesores';
 
@@ -24,4 +25,9 @@ class Profesor extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function materias()
+{
+    return $this->belongsToMany(Materia::class, 'profesor_materias');
+}
 }

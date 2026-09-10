@@ -8,5 +8,5 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-@import 'tailwindcss';
 @import './auth.css';
+@import './dashboard.css';

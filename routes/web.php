@@ -13,12 +13,19 @@ Route::middleware('auth')->group(function () {
 
     // Rutas exclusivas de admin
     Route::middleware('role:' . Profesor::ROL_ADMIN)
-        ->prefix('admin')
-        ->name('admin.')
-        ->group(function () {
-            Route::get('/usuarios', [AdminUsuariosController::class, 'index'])->name('usuarios');
-            Route::get('/profesores', [AdminUsuariosController::class, 'profesores'])->name('profesores');
-        });
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/usuarios', [AdminUsuariosController::class, 'index'])->name('usuarios');
+        Route::get('/profesores', [AdminUsuariosController::class, 'profesores'])->name('profesores');
+
+        Route::get('/profesores/{profesor}/editar', [AdminUsuariosController::class, 'edit'])->name('profesores.edit');
+        Route::put('/profesores/{profesor}', [AdminUsuariosController::class, 'update'])->name('profesores.update');
+        Route::delete('/profesores/{profesor}', [AdminUsuariosController::class, 'destroy'])->name('profesores.destroy');
+        Route::get('/profesores/{profesor}/materias', [AdminUsuariosController::class, 'materias'])->name('profesores.materias');
+        Route::post('/profesores/{profesor}/materias', [AdminUsuariosController::class, 'updateMaterias'])->name('profesores.materias.update');
+        Route::get('/materias', [AdminUsuariosController::class, 'materiasIndex'])->name('profesores.materias.index');
+    });
 
     // Rutas exclusivas de profesor
     Route::middleware('role:' . Profesor::ROL_PROFESOR)

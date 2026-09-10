@@ -26,11 +26,11 @@ class RegisterController extends Controller
             ],
 
             'email' => [
-                'required',
-                'email',
-                'ends_with:@abc.edu.ar',
-                'unique:users,email',
-            ],
+    'required',
+    'email',
+    'ends_with:@abc.gob.ar',
+    'unique:users,email',
+],
 
             'password' => [
                 'required',
@@ -43,7 +43,7 @@ class RegisterController extends Controller
 
             'email.required' => 'El email es obligatorio.',
             'email.email' => 'Ingresá un email válido.',
-            'email.ends_with' => 'Debés utilizar un email institucional @abc.edu.ar.',
+            'email.ends_with' => 'Debés utilizar un email institucional @abc.gob.ar.',
             'email.unique' => 'Ya existe una cuenta registrada con este email.',
 
             'password.required' => 'La contraseña es obligatoria.',

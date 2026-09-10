@@ -28,4 +28,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function profesor()
+    {
+        return $this->hasOne(Profesor::class);
+    }
+
+    public function getRolIdAttribute()
+    {
+        return $this->profesor?->rol_id;
+    }
 }

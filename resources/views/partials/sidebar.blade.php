@@ -14,10 +14,17 @@
     </div>
 
     @if(auth()->user()->rol_id === \App\Models\Profesor::ROL_ADMIN)
-    <nav class="sidebar-nav">
-        <a href="{{ route('admin.profesores') }}">Ver profesores</a>
-        <a href="{{ route('admin.profesores.materias.index') }}">Asignar Materias</a>
-    </nav>
+        <nav class="sidebar-nav">
+            <a href="{{ route('admin.profesores') }}">Ver profesores</a>
+            <a href="{{ route('admin.profesores.materias.index') }}">Materias</a>
+            <a href="{{ route('admin.programas.index') }}">Programas</a>
+        </nav>
+    @endif
+
+    @if(auth()->user()->rol_id === \App\Models\Profesor::ROL_PROFESOR)
+        <nav class="sidebar-nav">
+            <a href="{{ route('profesor.programas.index') }}">Cargar programa</a>
+        </nav>
     @endif
 
     <form action="{{ route('logout') }}" method="POST">

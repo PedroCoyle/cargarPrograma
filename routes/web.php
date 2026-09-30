@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminUsuariosController;
 use App\Http\Controllers\Admin\AdminProgramasController;
 use App\Http\Controllers\Profesor\ProgramasController;
 use App\Http\Controllers\Profesor\MateriasController;
+use App\Http\Controllers\Admin\CarrerasController;
 use App\Models\Profesor;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/profesores/{profesor}/materias', [AdminUsuariosController::class, 'updateMaterias'])->name('profesores.materias.update');
         Route::get('/materias', [AdminUsuariosController::class, 'materiasIndex'])->name('profesores.materias.index');
         Route::get('/programas', [AdminProgramasController::class, 'index'])->name('programas.index');
-            Route::delete('/programas/{programa}', [AdminProgramasController::class, 'destroy'])->name('programas.destroy'); 
+        Route::delete('/programas/{programa}', [AdminProgramasController::class, 'destroy'])->name('programas.destroy'); 
+
+            Route::get('/carreras', [CarrerasController::class, 'index'])->name('carreras.index');
+Route::post('/carreras', [CarrerasController::class, 'store'])->name('carreras.store');
+Route::get('/carreras/{carrera}', [CarrerasController::class, 'show'])->name('carreras.show');
+Route::delete('/carreras/{carrera}', [CarrerasController::class, 'destroy'])->name('carreras.destroy');
+
+Route::post('/carreras/{carrera}/materias', [CarrerasController::class, 'storeMateria'])->name('carreras.materias.store');
+Route::delete('/materias/{materia}', [CarrerasController::class, 'destroyMateria'])->name('materias.destroy');
     });
 
     // Rutas exclusivas de profesor

@@ -16,6 +16,7 @@
     @if(auth()->user()->rol_id === \App\Models\Profesor::ROL_ADMIN)
         <nav class="sidebar-nav">
             <a href="{{ route('admin.profesores') }}">Ver profesores</a>
+            <a href="{{ route('admin.carreras.index') }}">Carreras</a>
             <a href="{{ route('admin.profesores.materias.index') }}">Materias</a>
             <a href="{{ route('admin.programas.index') }}">Programas</a>
         </nav>

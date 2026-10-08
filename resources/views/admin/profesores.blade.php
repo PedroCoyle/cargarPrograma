@@ -59,6 +59,12 @@
         @if(in_array(\App\Models\Profesor::ROL_PROFESOR, $rolesIds))
             <span class="badge badge-profesor">Profesor</span>
         @endif
+        @if(in_array(\App\Models\Profesor::ROL_EMTP, $rolesIds))
+            <span class="badge badge-emtp">EMTP</span>
+        @endif
+        @if(in_array(\App\Models\Profesor::ROL_DIRECTIVO, $rolesIds))
+            <span class="badge badge-directivo">Directivo</span>
+        @endif
     @endif
 </td>
                         <td class="actions-cell">

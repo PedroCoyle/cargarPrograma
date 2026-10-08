@@ -342,6 +342,16 @@ body {
     color: #b42318;
 }
 
+.badge-emtp {
+    background: #fff4e0;
+    color: #9a5b00;
+}
+
+.badge-directivo {
+    background: #f1e9fb;
+    color: #5b2d8c;
+}
+
 
 /* =========================================================
    ENCABEZADO DE SECCIÓN

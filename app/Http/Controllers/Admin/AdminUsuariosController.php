@@ -45,6 +45,8 @@ public function update(Request $request, Profesor $profesor)
             Profesor::ROL_PROFESOR,
             Profesor::ROL_PRECEPTOR,
             Profesor::ROL_ADMIN,
+            Profesor::ROL_EMTP,
+            Profesor::ROL_DIRECTIVO,
         ])],
     ]);
 
@@ -132,7 +134,11 @@ public function updateMaterias(Request $request, Profesor $profesor)
 {
     $profesores = Profesor::with('user')
         ->whereHas('rolesPivot', function ($q) {
-            $q->where('rol_id', Profesor::ROL_PROFESOR);
+            $q->whereIn('rol_id', [
+                Profesor::ROL_PROFESOR,
+                Profesor::ROL_PRECEPTOR,
+                Profesor::ROL_EMTP,
+            ]);
         })
         ->get();
 

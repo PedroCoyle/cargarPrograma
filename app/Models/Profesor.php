@@ -12,6 +12,8 @@ class Profesor extends Model
     const ROL_PROFESOR = 1;
     const ROL_PRECEPTOR = 2;
     const ROL_ADMIN = 3;
+    const ROL_EMTP = 4;
+    const ROL_DIRECTIVO = 5;
 
     protected $table = 'profesores';
 
@@ -28,6 +30,16 @@ class Profesor extends Model
     public function materias()
     {
         return $this->belongsToMany(Materia::class, 'profesor_materias');
+    }
+
+    public function carrerasEmtp()
+    {
+        return $this->belongsToMany(Carrera::class, 'emtp_carreras');
+    }
+
+    public function cursosPreceptor()
+    {
+        return $this->hasMany(PreceptorCurso::class);
     }
 
     public function rolesPivot()

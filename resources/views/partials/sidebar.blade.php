@@ -14,8 +14,26 @@
             <nav class="sidebar-nav">
                 <a href="{{ route('admin.profesores') }}">Usuarios y roles</a>
                 <a href="{{ route('admin.carreras.index') }}">Carreras y materias</a>
-                <a href="{{ route('admin.profesores.materias.index') }}">Asignar materias</a>
+                <a href="{{ route('admin.profesores.materias.index') }}">Asignaciones</a>
                 <a href="{{ route('admin.programas.index') }}">Programas cargados</a>
+            </nav>
+        </details>
+    @endif
+
+    @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_DIRECTIVO))
+        <details class="sidebar-section">
+            <summary>Dirección</summary>
+            <nav class="sidebar-nav">
+                <a href="{{ route('consulta.programas.index') }}">Programas cargados</a>
+            </nav>
+        </details>
+    @endif
+
+    @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_EMTP))
+        <details class="sidebar-section">
+            <summary>EMTP</summary>
+            <nav class="sidebar-nav">
+                <a href="{{ route('consulta.programas.index') }}">Programas cargados</a>
             </nav>
         </details>
     @endif
@@ -24,7 +42,7 @@
         <details class="sidebar-section">
             <summary>Preceptoría</summary>
             <nav class="sidebar-nav">
-                <span class="sidebar-nav-empty">Próximamente</span>
+                <a href="{{ route('consulta.programas.index') }}">Programas cargados</a>
             </nav>
         </details>
     @endif

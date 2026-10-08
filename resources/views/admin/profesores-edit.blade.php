@@ -45,6 +45,18 @@
                         @checked(in_array(\App\Models\Profesor::ROL_ADMIN, old('roles', $profesor->roles_ids)))>
                     Admin
                 </label>
+
+                <label class="materia-checkbox">
+                    <input type="checkbox" name="roles[]" value="{{ \App\Models\Profesor::ROL_EMTP }}"
+                        @checked(in_array(\App\Models\Profesor::ROL_EMTP, old('roles', $profesor->roles_ids)))>
+                    EMTP
+                </label>
+
+                <label class="materia-checkbox">
+                    <input type="checkbox" name="roles[]" value="{{ \App\Models\Profesor::ROL_DIRECTIVO }}"
+                        @checked(in_array(\App\Models\Profesor::ROL_DIRECTIVO, old('roles', $profesor->roles_ids)))>
+                    Directivo
+                </label>
             </div>
 
             @error('nombre')

@@ -1,31 +1,41 @@
 <aside class="sidebar">
 
-    <div class="sidebar-role">
-        Este usuario es
-        @if(auth()->user()->rol_id === \App\Models\Profesor::ROL_ADMIN)
-            administrador
-        @elseif(auth()->user()->rol_id === \App\Models\Profesor::ROL_PRECEPTOR)
-            preceptor
-        @elseif(auth()->user()->rol_id === \App\Models\Profesor::ROL_PROFESOR)
-            profesor
-        @else
-            sin rango asignado
-        @endif
+    <div class="sidebar-logo">
+        <img
+            src="{{ asset('images/logo.png') }}"
+            alt="Logo institucional"
+            class="sidebar-logo-img"
+        >
     </div>
 
-    @if(auth()->user()->rol_id === \App\Models\Profesor::ROL_ADMIN)
-        <nav class="sidebar-nav">
-            <a href="{{ route('admin.profesores') }}">Ver profesores</a>
-            <a href="{{ route('admin.carreras.index') }}">Carreras</a>
-            <a href="{{ route('admin.profesores.materias.index') }}">Materias</a>
-            <a href="{{ route('admin.programas.index') }}">Programas</a>
-        </nav>
+    @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_ADMIN))
+        <details class="sidebar-section" open>
+            <summary>Administración</summary>
+            <nav class="sidebar-nav">
+                <a href="{{ route('admin.profesores') }}">Usuarios y roles</a>
+                <a href="{{ route('admin.carreras.index') }}">Carreras y materias</a>
+                <a href="{{ route('admin.profesores.materias.index') }}">Asignar materias</a>
+                <a href="{{ route('admin.programas.index') }}">Programas cargados</a>
+            </nav>
+        </details>
     @endif
 
-    @if(auth()->user()->rol_id === \App\Models\Profesor::ROL_PROFESOR)
-        <nav class="sidebar-nav">
-            <a href="{{ route('profesor.programas.index') }}">Cargar programa</a>
-        </nav>
+    @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_PRECEPTOR))
+        <details class="sidebar-section">
+            <summary>Preceptoría</summary>
+            <nav class="sidebar-nav">
+                <span class="sidebar-nav-empty">Próximamente</span>
+            </nav>
+        </details>
+    @endif
+
+    @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_PROFESOR))
+        <details class="sidebar-section">
+            <summary>Mis materias</summary>
+            <nav class="sidebar-nav">
+                <a href="{{ route('profesor.programas.index') }}">Cargar programas</a>
+            </nav>
+        </details>
     @endif
 
     <form action="{{ route('logout') }}" method="POST">

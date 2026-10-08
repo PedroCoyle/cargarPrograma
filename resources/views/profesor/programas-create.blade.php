@@ -15,11 +15,22 @@
             @csrf
 
             <div class="form-group">
+                <label for="anio_lectivo">Año lectivo</label>
+                <select id="anio_lectivo" name="anio_lectivo" required>
+                    <option value="{{ $anioActual }}">{{ $anioActual }}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="archivo">Archivo (PDF o Word)</label>
                 <input type="file" id="archivo" name="archivo" accept=".pdf,.doc,.docx" required>
             </div>
 
             @error('archivo')
+                <div class="auth-errors">{{ $message }}</div>
+            @enderror
+
+            @error('anio_lectivo')
                 <div class="auth-errors">{{ $message }}</div>
             @enderror
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Programa extends Model
 {
-    protected $fillable = ['profesor_id', 'materia_id', 'archivo', 'fecha_subida', 'ultimo'];
+   protected $fillable = ['profesor_id', 'materia_id', 'anio_lectivo', 'archivo', 'fecha_subida', 'ultimo'];
 
     protected $casts = [
         'fecha_subida' => 'datetime',

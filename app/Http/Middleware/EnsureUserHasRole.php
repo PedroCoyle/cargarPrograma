@@ -10,9 +10,13 @@ class EnsureUserHasRole
 {
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $rolId = $request->user()?->rol_id;
+        $user = $request->user();
 
-        if (! $rolId || ! in_array($rolId, $roles)) {
+        $tieneAlguno = $user && collect($roles)->contains(
+            fn ($rol) => $user->tieneRol((int) $rol)
+        );
+
+        if (! $tieneAlguno) {
             abort(403, 'No tenés permiso para acceder a esta sección.');
         }
 

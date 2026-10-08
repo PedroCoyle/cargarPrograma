@@ -34,8 +34,13 @@ class User extends Authenticatable
         return $this->hasOne(Profesor::class);
     }
 
-    public function getRolIdAttribute()
-    {
-        return $this->profesor?->rol_id;
-    }
+    public function tieneRol(int $rolId): bool
+{
+    return $this->profesor?->tieneRol($rolId) ?? false;
+}
+
+public function getRolesIdsAttribute(): array
+{
+    return $this->profesor?->roles_ids ?? [];
+}
 }

@@ -12,47 +12,49 @@ use Illuminate\Http\Request;
 class AdminUsuariosController extends Controller
 {
     public function profesores(Request $request)
-    {
-        $query = Profesor::with('user');
+{
+    $query = Profesor::with('user');
 
-        $sinRol = $request->boolean('sin_rol');
+    $sinRol = $request->boolean('sin_rol');
 
-        if ($sinRol) {
-            $query->whereNull('rol_id');
-        }
-
-        $profesores = $query->get();
-
-        return view('admin.profesores', [
-            'profesores' => $profesores,
-            'sinRol' => $sinRol,
-        ]);
+    if ($sinRol) {
+        $query->whereDoesntHave('rolesPivot');
     }
 
-    public function edit(Profesor $profesor)
-    {
-        return view('admin.profesores-edit', [
-            'profesor' => $profesor,
-        ]);
-    }
+    $profesores = $query->get();
 
-    public function update(Request $request, Profesor $profesor)
-    {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:255'],
-            'rol_id' => ['required', 'in:' . implode(',', [
-                Profesor::ROL_PROFESOR,
-                Profesor::ROL_PRECEPTOR,
-                Profesor::ROL_ADMIN,
-            ])],
-        ]);
+    return view('admin.profesores', [
+        'profesores' => $profesores,
+        'sinRol' => $sinRol,
+    ]);
+}
 
-        $profesor->update($validated);
+public function edit(Profesor $profesor)
+{
+    return view('admin.profesores-edit', [
+        'profesor' => $profesor,
+    ]);
+}
 
-        return redirect()
-            ->route('admin.profesores')
-            ->with('success', 'Rol asignado correctamente.');
-    }
+public function update(Request $request, Profesor $profesor)
+{
+    $validated = $request->validate([
+        'nombre' => ['required', 'string', 'max:255'],
+        'roles' => ['required', 'array', 'min:1'],
+        'roles.*' => ['in:' . implode(',', [
+            Profesor::ROL_PROFESOR,
+            Profesor::ROL_PRECEPTOR,
+            Profesor::ROL_ADMIN,
+        ])],
+    ]);
+
+    $profesor->update(['nombre' => $validated['nombre']]);
+    $profesor->asignarRoles($validated['roles']);
+
+    return redirect()
+        ->route('admin.profesores')
+        ->with('success', 'Roles asignados correctamente.');
+}
 
     public function destroy(Profesor $profesor)
     {
@@ -126,10 +128,12 @@ public function updateMaterias(Request $request, Profesor $profesor)
         ->with('success', 'Materias actualizadas correctamente.');
 }
 
-    public function materiasIndex()
+ public function materiasIndex()
 {
     $profesores = Profesor::with('user')
-        ->where('rol_id', Profesor::ROL_PROFESOR)
+        ->whereHas('rolesPivot', function ($q) {
+            $q->where('rol_id', Profesor::ROL_PROFESOR);
+        })
         ->get();
 
     return view('admin.materias-index', [

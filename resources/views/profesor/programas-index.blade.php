@@ -12,6 +12,10 @@
         <div class="auth-success">{{ session('success') }}</div>
     @endif
 
+    @if(session('error'))
+    <div class="auth-errors">{{ session('error') }}</div>
+    @endif
+
     @forelse($materias as $materia)
 
         @php $programasDeLaMateria = $programas->get($materia->id, collect()); @endphp
@@ -22,9 +26,13 @@
                 <h1 style="font-size: 16px;">
                     {{ $materia->carrera->nombre }} — {{ $materia->anio->nombre }} — {{ $materia->nombre }}
                 </h1>
-                <a href="{{ route('profesor.programas.create', $materia) }}" class="btn btn-primary btn-sm">
-                    Subir programa
-                </a>
+                @if($programasDeLaMateria->count() < 3)
+    <a href="{{ route('profesor.programas.create', $materia) }}" class="btn btn-primary btn-sm">
+        Subir programa
+    </a>
+@else
+    <span class="badge badge-profesor">Completo (3/3)</span>
+@endif
             </div>
 
             <table class="data-table" style="margin-top: 12px;">

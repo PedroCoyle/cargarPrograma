@@ -34,7 +34,7 @@
                     <th>Email</th>
                     <th>Nombre de usuario</th>
                     <th>Nombre asignado</th>
-                    <th>Rango</th>
+                    <th>Rol</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -45,16 +45,22 @@
                         <td>{{ $profesor->user->nombre }}</td>
                         <td>{{ $profesor->nombre ?? '—' }}</td>
                         <td>
-                            @if(is_null($profesor->rol_id))
-                                <span class="badge badge-sin-rol">Sin asignar</span>
-                            @elseif($profesor->rol_id === \App\Models\Profesor::ROL_ADMIN)
-                                <span class="badge badge-admin">Admin</span>
-                            @elseif($profesor->rol_id === \App\Models\Profesor::ROL_PROFESOR)
-                                <span class="badge badge-profesor">Profesor</span>
-                            @else
-                                <span class="badge badge-preceptor">Preceptor</span>
-                            @endif
-                        </td>
+    @php $rolesIds = $profesor->roles_ids; @endphp
+
+    @if(empty($rolesIds))
+        <span class="badge badge-sin-rol">Sin asignar</span>
+    @else
+        @if(in_array(\App\Models\Profesor::ROL_ADMIN, $rolesIds))
+            <span class="badge badge-admin">Admin</span>
+        @endif
+        @if(in_array(\App\Models\Profesor::ROL_PRECEPTOR, $rolesIds))
+            <span class="badge badge-preceptor">Preceptor</span>
+        @endif
+        @if(in_array(\App\Models\Profesor::ROL_PROFESOR, $rolesIds))
+            <span class="badge badge-profesor">Profesor</span>
+        @endif
+    @endif
+</td>
                         <td class="actions-cell">
 
                             <a href="{{ route('admin.profesores.edit', $profesor) }}" class="btn btn-outline btn-sm">

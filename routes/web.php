@@ -45,9 +45,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/carreras', [CarrerasController::class, 'index'])->name('carreras.index');
             Route::post('/carreras', [CarrerasController::class, 'store'])->name('carreras.store');
             Route::get('/carreras/{carrera}', [CarrerasController::class, 'show'])->name('carreras.show');
+            Route::get('/carreras/{carrera}/eliminar', [CarrerasController::class, 'confirmarEliminacion'])->name('carreras.delete');
             Route::delete('/carreras/{carrera}', [CarrerasController::class, 'destroy'])->name('carreras.destroy');
 
+
+            Route::get('/carreras/{carrera}/editar', [CarrerasController::class, 'edit'])->name('carreras.edit');
+Route::put('/carreras/{carrera}', [CarrerasController::class, 'update'])->name('carreras.update');
+
             Route::post('/carreras/{carrera}/materias', [CarrerasController::class, 'storeMateria'])->name('carreras.materias.store');
+            Route::get('/materias/{materia}/editar', [CarrerasController::class, 'editMateria'])->name('materias.edit');
+            Route::put('/materias/{materia}', [CarrerasController::class, 'updateMateria'])->name('materias.update');
+            Route::get('/materias/{materia}/eliminar', [CarrerasController::class, 'confirmarEliminacionMateria'])->name('materias.delete');
             Route::delete('/materias/{materia}', [CarrerasController::class, 'destroyMateria'])->name('materias.destroy');
         });
 

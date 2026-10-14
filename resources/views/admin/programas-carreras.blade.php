@@ -5,10 +5,6 @@
 @section('content')
 
     <div class="section-header">
-        <h1>Programas por carrera</h1>
-    </div>
-
-    <div class="section-header">
     <h1>Programas por carrera — {{ $anioActual }}</h1>
 </div>
 

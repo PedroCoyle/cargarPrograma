@@ -9,7 +9,7 @@
     </div>
 
     @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_ADMIN))
-        <details class="sidebar-section" open>
+        <details class="sidebar-section" data-section="admin" open>
             <summary>Administración</summary>
             <nav class="sidebar-nav">
                 <a href="{{ route('admin.profesores') }}">Usuarios y roles</a>
@@ -21,7 +21,7 @@
     @endif
 
     @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_DIRECTIVO))
-        <details class="sidebar-section">
+        <details class="sidebar-section" data-section="directivo" open>
             <summary>Dirección</summary>
             <nav class="sidebar-nav">
                 <a href="{{ route('consulta.programas.index') }}">Programas cargados</a>
@@ -30,7 +30,7 @@
     @endif
 
     @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_EMTP))
-        <details class="sidebar-section">
+        <details class="sidebar-section" data-section="emtp" open>
             <summary>EMTP</summary>
             <nav class="sidebar-nav">
                 <a href="{{ route('consulta.programas.index') }}">Programas cargados</a>
@@ -39,7 +39,7 @@
     @endif
 
     @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_PRECEPTOR))
-        <details class="sidebar-section">
+        <details class="sidebar-section" data-section="preceptor" open>
             <summary>Preceptoría</summary>
             <nav class="sidebar-nav">
                 <a href="{{ route('consulta.programas.index') }}">Programas cargados</a>
@@ -48,7 +48,7 @@
     @endif
 
     @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_PROFESOR))
-        <details class="sidebar-section">
+        <details class="sidebar-section" data-section="profesor" open>
             <summary>Mis materias</summary>
             <nav class="sidebar-nav">
                 <a href="{{ route('profesor.programas.index') }}">Cargar programas</a>
@@ -63,5 +63,25 @@
             Cerrar sesión
         </button>
     </form>
+
+    <script>
+        (function () {
+            document.querySelectorAll('.sidebar-section[data-section]').forEach(function (section) {
+                var key = 'sidebar-section:' + section.dataset.section;
+
+                try {
+                    if (localStorage.getItem(key) === 'closed') {
+                        section.removeAttribute('open');
+                    }
+                } catch (e) {}
+
+                section.addEventListener('toggle', function () {
+                    try {
+                        localStorage.setItem(key, section.open ? 'open' : 'closed');
+                    } catch (e) {}
+                });
+            });
+        })();
+    </script>
 
 </aside>

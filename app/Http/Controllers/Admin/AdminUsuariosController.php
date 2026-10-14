@@ -11,14 +11,27 @@ use Illuminate\Http\Request;
 
 class AdminUsuariosController extends Controller
 {
-    public function profesores(Request $request)
+  public function profesores(Request $request)
 {
     $query = Profesor::with('user');
 
     $sinRol = $request->boolean('sin_rol');
+    $busqueda = trim((string) $request->query('buscar'));
 
     if ($sinRol) {
         $query->whereDoesntHave('rolesPivot');
+    }
+
+    if ($busqueda !== '') {
+        $termino = '%' . mb_strtolower($busqueda) . '%';
+
+        $query->where(function ($q) use ($termino) {
+            $q->whereRaw('LOWER(profesores.nombre) LIKE ?', [$termino])
+              ->orWhereHas('user', function ($u) use ($termino) {
+                  $u->whereRaw('LOWER(users.nombre) LIKE ?', [$termino])
+                    ->orWhereRaw('LOWER(users.email) LIKE ?', [$termino]);
+              });
+        });
     }
 
     $profesores = $query->get();
@@ -26,6 +39,7 @@ class AdminUsuariosController extends Controller
     return view('admin.profesores', [
         'profesores' => $profesores,
         'sinRol' => $sinRol,
+        'busqueda' => $busqueda,
     ]);
 }
 

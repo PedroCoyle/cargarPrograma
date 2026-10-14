@@ -50,7 +50,7 @@
                             <td>{{ basename($programa->archivo) }}</td>
                             <td class="actions-cell">
                                 <a href="{{ asset('storage/' . $programa->archivo) }}" target="_blank" class="btn btn-outline btn-sm">
-                                    Ver
+                                    Descargar
                                 </a>
                             </td>
                         </tr>

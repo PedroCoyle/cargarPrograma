@@ -50,16 +50,12 @@
                             <a href="{{ route('admin.carreras.show', $carrera) }}" class="btn btn-outline btn-sm">
                                 Ver materias
                             </a>
-                            <form
-                                action="{{ route('admin.carreras.destroy', $carrera) }}"
-                                method="POST"
-                                onsubmit="return confirm('¿Eliminar esta carrera? Se van a borrar también todas sus materias, las asignaciones a profesores y los programas subidos. Esta acción no se puede deshacer.');"
-                                style="display: inline;"
-                            >
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                            </form>
+                            <a href="{{ route('admin.carreras.edit', $carrera) }}" class="btn btn-outline btn-sm">
+                                Editar
+                            </a>
+                            <a href="{{ route('admin.carreras.delete', $carrera) }}" class="btn btn-danger btn-sm">
+                                Eliminar
+                            </a>
                         </td>
                     </tr>
                 @empty

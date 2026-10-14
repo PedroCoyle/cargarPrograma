@@ -72,7 +72,7 @@
 
                             <div class="programa-slot-actions">
                                 <a href="{{ asset('storage/' . $programa->archivo) }}" target="_blank" class="btn btn-outline btn-sm">
-                                    Ver
+                                    Descargar
                                 </a>
                             </div>
                         @else

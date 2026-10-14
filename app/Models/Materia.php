@@ -17,4 +17,14 @@ class Materia extends Model
     {
         return $this->belongsTo(Anio::class);
     }
+
+    public function profesores()
+    {
+        return $this->belongsToMany(Profesor::class, 'profesor_materias');
+    }
+
+    public function programas()
+    {
+        return $this->hasMany(Programa::class);
+    }
 }

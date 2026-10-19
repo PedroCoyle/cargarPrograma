@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('jefe_carreras', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('profesor_id')->constrained('profesores')->onDelete('cascade');
+            $table->foreignId('carrera_id')->constrained('carreras')->onDelete('cascade');
+            $table->timestamps();
+
+            $table->unique(['profesor_id', 'carrera_id']);
+        });
+
+        // Qué jefe creó cada perfil (vacío para los que crea el admin)
+        Schema::table('profesores', function (Blueprint $table) {
+            $table->foreignId('creado_por_perfil_id')
+                ->nullable()
+                ->after('creado_por_admin')
+                ->constrained('profesores')
+                ->nullOnDelete();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('profesores', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('creado_por_perfil_id');
+        });
+
+        Schema::dropIfExists('jefe_carreras');
+    }
+};

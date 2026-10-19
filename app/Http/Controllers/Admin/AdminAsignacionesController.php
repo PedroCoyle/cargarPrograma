@@ -5,12 +5,80 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Anio;
 use App\Models\Carrera;
+use App\Models\Materia;
 use App\Models\Profesor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminAsignacionesController extends Controller
 {
+    // ---------- Profesor: materias ----------
+
+    public function materias(Request $request, Profesor $profesor)
+    {
+        abort_unless($profesor->tieneRol(Profesor::ROL_PROFESOR), 404);
+
+        $carreras = Carrera::orderBy('nombre')->get();
+        $anios = Anio::orderBy('id')->get();
+
+        $carreraId = $request->query('carrera_id');
+        $anioId = $request->query('anio_id');
+
+        $materiasFiltradas = collect();
+
+        if ($carreraId && $anioId) {
+            $materiasFiltradas = Materia::where('carrera_id', $carreraId)
+                ->where('anio_id', $anioId)
+                ->orderBy('nombre')
+                ->get();
+        }
+
+        $asignadas = $profesor->materias()->with(['carrera', 'anio'])->orderBy('nombre')->get();
+        $asignadasIds = $asignadas->pluck('id')->toArray();
+
+        return view('admin.profesores-materias', [
+            'profesor' => $profesor,
+            'carreras' => $carreras,
+            'anios' => $anios,
+            'carreraId' => $carreraId,
+            'anioId' => $anioId,
+            'materiasFiltradas' => $materiasFiltradas,
+            'asignadas' => $asignadas,
+            'asignadasIds' => $asignadasIds,
+        ]);
+    }
+
+    public function updateMaterias(Request $request, Profesor $profesor)
+    {
+        abort_unless($profesor->tieneRol(Profesor::ROL_PROFESOR), 404);
+
+        $validated = $request->validate([
+            'carrera_id' => ['required', 'exists:carreras,id'],
+            'anio_id' => ['required', 'exists:anios,id'],
+            'materias' => ['array'],
+            'materias.*' => ['integer', 'exists:materias,id'],
+        ]);
+
+        $materiaIdsEnFiltro = Materia::where('carrera_id', $validated['carrera_id'])
+            ->where('anio_id', $validated['anio_id'])
+            ->pluck('id')
+            ->toArray();
+
+        // Solo se tocan las materias de esta carrera y año, sin afectar otras asignaciones
+        $profesor->materias()->detach($materiaIdsEnFiltro);
+
+        $seleccionadas = array_intersect($validated['materias'] ?? [], $materiaIdsEnFiltro);
+        $profesor->materias()->attach($seleccionadas);
+
+        return redirect()
+            ->route('admin.profesores.materias', [
+                'profesor' => $profesor,
+                'carrera_id' => $validated['carrera_id'],
+                'anio_id' => $validated['anio_id'],
+            ])
+            ->with('success', 'Materias actualizadas correctamente.');
+    }
+
     // ---------- EMTP: carreras completas ----------
 
     public function carreras(Profesor $profesor)

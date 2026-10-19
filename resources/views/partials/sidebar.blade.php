@@ -12,9 +12,9 @@
         <details class="sidebar-section" data-section="admin" open>
             <summary>Administración</summary>
             <nav class="sidebar-nav">
-                <a href="{{ route('admin.profesores') }}">Usuarios y roles</a>
+                <a href="{{ route('admin.perfiles.index') }}">Perfiles</a>
+                <a href="{{ route('admin.usuarios') }}">Usuarios y roles</a>
                 <a href="{{ route('admin.carreras.index') }}">Carreras y materias</a>
-                <a href="{{ route('admin.profesores.materias.index') }}">Asignaciones</a>
                 <a href="{{ route('admin.programas.index') }}">Programas cargados</a>
             </nav>
         </details>

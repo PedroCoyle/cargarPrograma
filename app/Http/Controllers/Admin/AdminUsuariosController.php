@@ -3,161 +3,164 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Anio;
-use App\Models\Carrera;
-use App\Models\Materia;
 use App\Models\Profesor;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminUsuariosController extends Controller
 {
-  public function profesores(Request $request)
-{
-    $query = Profesor::with('user');
+    // ---------- Listado de cuentas ----------
 
-    $sinRol = $request->boolean('sin_rol');
-    $busqueda = trim((string) $request->query('buscar'));
-
-    if ($sinRol) {
-        $query->whereDoesntHave('rolesPivot');
-    }
-
-    if ($busqueda !== '') {
-        $termino = '%' . mb_strtolower($busqueda) . '%';
-
-        $query->where(function ($q) use ($termino) {
-            $q->whereRaw('LOWER(profesores.nombre) LIKE ?', [$termino])
-              ->orWhereHas('user', function ($u) use ($termino) {
-                  $u->whereRaw('LOWER(users.nombre) LIKE ?', [$termino])
-                    ->orWhereRaw('LOWER(users.email) LIKE ?', [$termino]);
-              });
-        });
-    }
-
-    $profesores = $query->get();
-
-    return view('admin.profesores', [
-        'profesores' => $profesores,
-        'sinRol' => $sinRol,
-        'busqueda' => $busqueda,
-    ]);
-}
-
-public function edit(Profesor $profesor)
-{
-    return view('admin.profesores-edit', [
-        'profesor' => $profesor,
-    ]);
-}
-
-public function update(Request $request, Profesor $profesor)
-{
-    $validated = $request->validate([
-        'nombre' => ['required', 'string', 'max:255'],
-        'roles' => ['required', 'array', 'min:1'],
-        'roles.*' => ['in:' . implode(',', [
-            Profesor::ROL_PROFESOR,
-            Profesor::ROL_PRECEPTOR,
-            Profesor::ROL_ADMIN,
-            Profesor::ROL_EMTP,
-            Profesor::ROL_DIRECTIVO,
-        ])],
-    ]);
-
-    $profesor->update(['nombre' => $validated['nombre']]);
-    $profesor->asignarRoles($validated['roles']);
-
-    return redirect()
-        ->route('admin.profesores')
-        ->with('success', 'Roles asignados correctamente.');
-}
-
-    public function destroy(Profesor $profesor)
+    public function index(Request $request)
     {
-        $user = $profesor->user;
+        $busqueda = trim((string) $request->query('buscar'));
+        $estado = $request->query('estado'); // sin_perfil | con_perfil | null
 
-        $profesor->delete();
-        $user?->delete();
+        $query = User::with('profesor');
 
-        return redirect()
-            ->route('admin.profesores')
-            ->with('success', 'Usuario eliminado correctamente.');
+        if ($estado === 'sin_perfil') {
+            $query->whereDoesntHave('profesor', fn ($q) => $q->where('creado_por_admin', true));
+        } elseif ($estado === 'con_perfil') {
+            $query->whereHas('profesor', fn ($q) => $q->where('creado_por_admin', true));
+        }
+
+        if ($busqueda !== '') {
+            $termino = '%' . mb_strtolower($busqueda) . '%';
+
+            $query->where(function ($q) use ($termino) {
+                $q->whereRaw('LOWER(users.nombre) LIKE ?', [$termino])
+                  ->orWhereRaw('LOWER(users.email) LIKE ?', [$termino])
+                  ->orWhereHas('profesor', function ($p) use ($termino) {
+                      $p->whereRaw('LOWER(profesores.nombre) LIKE ?', [$termino]);
+                  });
+            });
+        }
+
+        return view('admin.usuarios-index', [
+            'usuarios' => $query->orderByDesc('created_at')->get(),
+            'busqueda' => $busqueda,
+            'estado' => $estado,
+        ]);
     }
 
-public function materias(Request $request, Profesor $profesor)
-{
-    $carreras = Carrera::orderBy('nombre')->get();
-    $anios = Anio::orderBy('id')->get();
+    // ---------- Asociar / cambiar perfil ----------
 
-    $carreraId = $request->query('carrera_id');
-    $anioId = $request->query('anio_id');
-
-    $materiasFiltradas = collect();
-
-    if ($carreraId && $anioId) {
-        $materiasFiltradas = Materia::where('carrera_id', $carreraId)
-            ->where('anio_id', $anioId)
+    public function asociar(User $user)
+    {
+        // Perfiles creados por el admin que todavía no tienen cuenta
+        $perfiles = Profesor::where('creado_por_admin', true)
+            ->whereNull('user_id')
             ->orderBy('nombre')
             ->get();
+
+        return view('admin.usuarios-asociar', [
+            'usuario' => $user->load('profesor'),
+            'perfiles' => $perfiles,
+        ]);
     }
 
-    $asignadas = $profesor->materias()->with(['carrera', 'anio'])->orderBy('nombre')->get();
-    $asignadasIds = $asignadas->pluck('id')->toArray();
+    public function asociarStore(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'perfil_id' => ['required', 'exists:profesores,id'],
+        ], [
+            'perfil_id.required' => 'Elegí un perfil.',
+        ]);
 
-    return view('admin.profesores-materias', [
-        'profesor' => $profesor,
-        'carreras' => $carreras,
-        'anios' => $anios,
-        'carreraId' => $carreraId,
-        'anioId' => $anioId,
-        'materiasFiltradas' => $materiasFiltradas,
-        'asignadas' => $asignadas,
-        'asignadasIds' => $asignadasIds,
-    ]);
-}
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['perfil_id' => 'No podés cambiar el perfil de tu propia cuenta.']);
+        }
 
-public function updateMaterias(Request $request, Profesor $profesor)
-{
-    $validated = $request->validate([
-        'carrera_id' => ['required', 'exists:carreras,id'],
-        'anio_id' => ['required', 'exists:anios,id'],
-        'materias' => ['array'],
-        'materias.*' => ['integer', 'exists:materias,id'],
-    ]);
+        $perfil = Profesor::findOrFail($validated['perfil_id']);
 
-    $materiaIdsEnFiltro = Materia::where('carrera_id', $validated['carrera_id'])
-        ->where('anio_id', $validated['anio_id'])
-        ->pluck('id')
-        ->toArray();
+        if (! $perfil->creado_por_admin || $perfil->tieneCuenta()) {
+            return back()->withErrors(['perfil_id' => 'Ese perfil no está disponible.']);
+        }
 
-    $profesor->materias()->detach($materiaIdsEnFiltro);
+        $actual = $user->profesor;
 
-    $seleccionadas = array_intersect($validated['materias'] ?? [], $materiaIdsEnFiltro);
-    $profesor->materias()->attach($seleccionadas);
-
-    return redirect()
-        ->route('admin.profesores.materias', [
-            'profesor' => $profesor,
-            'carrera_id' => $validated['carrera_id'],
-            'anio_id' => $validated['anio_id'],
-        ])
-        ->with('success', 'Materias actualizadas correctamente.');
-}
-
- public function materiasIndex()
-{
-    $profesores = Profesor::with('user')
-        ->whereHas('rolesPivot', function ($q) {
-            $q->whereIn('rol_id', [
-                Profesor::ROL_PROFESOR,
-                Profesor::ROL_PRECEPTOR,
-                Profesor::ROL_EMTP,
+        // Solo se reemplaza el perfil vacío de una cuenta nueva o el perfil armado por el admin
+        if ($actual && ! $actual->creado_por_admin && ! $actual->estaVacio()) {
+            return back()->withErrors([
+                'perfil_id' => 'Esta cuenta tiene un perfil con datos y no se puede reemplazar.',
             ]);
-        })
-        ->get();
+        }
 
-    return view('admin.materias-index', [
-        'profesores' => $profesores,
-    ]);
-}
+        DB::transaction(function () use ($user, $perfil, $actual) {
+            if ($actual) {
+                if ($actual->creado_por_admin) {
+                    // Cambio de perfil: el anterior queda esperando registro
+                    $actual->update(['user_id' => null]);
+                } else {
+                    // Perfil vacío de cuenta nueva: se descarta
+                    $actual->delete();
+                }
+            }
+
+            $perfil->update(['user_id' => $user->id]);
+        });
+
+        return redirect()
+            ->route('admin.usuarios')
+            ->with('success', "La cuenta {$user->email} quedó asociada al perfil de {$perfil->nombre}.");
+    }
+
+    // ---------- Desvincular ----------
+
+    public function desvincular(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['general' => 'No podés desvincular tu propia cuenta.']);
+        }
+
+        $perfil = $user->profesor;
+
+        if (! $perfil || ! $perfil->creado_por_admin) {
+            return back()->withErrors(['general' => 'Esa cuenta no tiene un perfil asociado.']);
+        }
+
+        DB::transaction(function () use ($user, $perfil) {
+            $perfil->update(['user_id' => null]);
+
+            // La cuenta vuelve a quedar como una cuenta nueva, sin roles
+            Profesor::create(['user_id' => $user->id]);
+        });
+
+        return redirect()
+            ->route('admin.usuarios')
+            ->with('success', "Se desvinculó la cuenta {$user->email} del perfil de {$perfil->nombre}.");
+    }
+
+    // ---------- Eliminar cuenta ----------
+
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['general' => 'No podés eliminar tu propia cuenta.']);
+        }
+
+        $perfil = $user->profesor;
+
+        DB::transaction(function () use ($user, $perfil) {
+            if ($perfil) {
+                if ($perfil->creado_por_admin || ! $perfil->estaVacio()) {
+                    // El perfil se conserva, con sus asignaciones y programas
+                    $perfil->update([
+                        'user_id' => null,
+                        'nombre' => $perfil->nombre ?? $user->nombre,
+                        'creado_por_admin' => true,
+                    ]);
+                } else {
+                    $perfil->delete();
+                }
+            }
+
+            $user->delete();
+        });
+
+        return redirect()
+            ->route('admin.usuarios')
+            ->with('success', 'Cuenta eliminada. Si tenía un perfil, se conservó esperando registro.');
+    }
 }

@@ -6,7 +6,7 @@
 
     <div class="section-header">
         <h1>Materias de {{ $profesor->nombre ?? $profesor->user->email }}</h1>
-        <a href="{{ route('admin.profesores.materias.index') }}" class="btn btn-outline">Volver</a>
+        <a href="{{ route('admin.perfiles.index') }}" class="btn btn-outline">Volver</a>
     </div>
 
     @if(session('success'))

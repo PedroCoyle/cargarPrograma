@@ -11,6 +11,7 @@
             \App\Models\Profesor::ROL_ADMIN => 'Admin',
             \App\Models\Profesor::ROL_EMTP => 'EMTP',
             \App\Models\Profesor::ROL_DIRECTIVO => 'Directivo',
+            \App\Models\Profesor::ROL_JEFE => 'Jefe de área / depto.',
         ];
 
         $actual = $usuario->profesor;

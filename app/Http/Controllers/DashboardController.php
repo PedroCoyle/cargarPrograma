@@ -14,6 +14,7 @@ class DashboardController extends Controller
         $destinos = [
             Profesor::ROL_ADMIN => 'admin.programas.index',
             Profesor::ROL_DIRECTIVO => 'consulta.programas.index',
+            Profesor::ROL_JEFE => 'jefatura.perfiles.index',
             Profesor::ROL_EMTP => 'consulta.programas.index',
             Profesor::ROL_PRECEPTOR => 'consulta.programas.index',
             Profesor::ROL_PROFESOR => 'profesor.programas.index',

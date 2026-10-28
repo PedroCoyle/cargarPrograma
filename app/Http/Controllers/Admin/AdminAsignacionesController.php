@@ -161,4 +161,33 @@ class AdminAsignacionesController extends Controller
             ->route('admin.profesores.cursos', $profesor)
             ->with('success', 'Cursos actualizados correctamente.');
     }
+
+    // ---------- Jefe de área / departamento: carreras de su área ----------
+
+public function areas(Profesor $profesor)
+{
+    abort_unless($profesor->tieneRol(Profesor::ROL_JEFE), 404);
+
+    return view('admin.profesores-areas', [
+        'profesor' => $profesor,
+        'carreras' => Carrera::orderBy('nombre')->get(),
+        'asignadasIds' => $profesor->carrerasJefe()->pluck('carreras.id')->toArray(),
+    ]);
+}
+
+public function updateAreas(Request $request, Profesor $profesor)
+{
+    abort_unless($profesor->tieneRol(Profesor::ROL_JEFE), 404);
+
+    $validated = $request->validate([
+        'carreras' => ['array'],
+        'carreras.*' => ['integer', 'exists:carreras,id'],
+    ]);
+
+    $profesor->carrerasJefe()->sync($validated['carreras'] ?? []);
+
+    return redirect()
+        ->route('admin.profesores.areas', $profesor)
+        ->with('success', 'Área actualizada correctamente.');
+}
 }

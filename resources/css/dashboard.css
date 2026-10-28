@@ -881,3 +881,20 @@ body {
     align-items: center;
     margin-right: 20px;
 }
+
+.badge-jefe {
+    background: #e0f4f4;
+    color: #0f6b6b;
+}
+
+.roles-inline .materia-checkbox {
+    display: inline-flex;
+    align-items: center;
+
+    white-space: nowrap;
+
+    margin-right: 16px;
+    padding: 4px 0;
+
+    font-size: 13px;
+}

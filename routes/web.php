@@ -7,6 +7,11 @@ use App\Http\Controllers\Admin\AdminProgramasController;
 use App\Http\Controllers\Admin\AdminAsignacionesController;
 use App\Http\Controllers\Admin\CarrerasController;
 use App\Http\Controllers\Consulta\ProgramasConsultaController;
+use App\Http\Controllers\Jefatura\JefaturaAsignacionesController;
+use App\Http\Controllers\Jefatura\JefaturaCarrerasController;
+use App\Http\Controllers\Jefatura\JefaturaPerfilesController;
+use App\Http\Controllers\Jefatura\JefaturaUsuariosController;
+use App\Http\Controllers\Jefatura\JefaturaProgramasController;
 use App\Http\Controllers\Profesor\ProgramasController;
 use App\Models\Profesor;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +43,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/perfiles/{profesor}/carreras', [AdminAsignacionesController::class, 'updateCarreras'])->name('profesores.carreras.update');
             Route::get('/perfiles/{profesor}/cursos', [AdminAsignacionesController::class, 'cursos'])->name('profesores.cursos');
             Route::post('/perfiles/{profesor}/cursos', [AdminAsignacionesController::class, 'updateCursos'])->name('profesores.cursos.update');
+            Route::get('/perfiles/{profesor}/area', [AdminAsignacionesController::class, 'areas'])->name('profesores.areas');
+            Route::post('/perfiles/{profesor}/area', [AdminAsignacionesController::class, 'updateAreas'])->name('profesores.areas.update');
 
             // Usuarios y roles (cuentas)
             Route::get('/usuarios', [AdminUsuariosController::class, 'index'])->name('usuarios');
@@ -66,6 +73,46 @@ Route::middleware('auth')->group(function () {
             Route::put('/materias/{materia}', [CarrerasController::class, 'updateMateria'])->name('materias.update');
             Route::get('/materias/{materia}/eliminar', [CarrerasController::class, 'confirmarEliminacionMateria'])->name('materias.delete');
             Route::delete('/materias/{materia}', [CarrerasController::class, 'destroyMateria'])->name('materias.destroy');
+        });
+
+    // Jefe de área / departamento
+    Route::middleware('role:' . Profesor::ROL_JEFE)
+        ->prefix('jefatura')
+        ->name('jefatura.')
+        ->group(function () {
+
+            // Perfiles de su área
+            Route::get('/perfiles', [JefaturaPerfilesController::class, 'index'])->name('perfiles.index');
+            Route::post('/perfiles', [JefaturaPerfilesController::class, 'store'])->name('perfiles.store');
+            Route::get('/perfiles/{profesor}/editar', [JefaturaPerfilesController::class, 'edit'])->name('perfiles.edit');
+            Route::put('/perfiles/{profesor}', [JefaturaPerfilesController::class, 'update'])->name('perfiles.update');
+
+            // Asignaciones dentro de su área
+            Route::get('/perfiles/{profesor}/materias', [JefaturaAsignacionesController::class, 'materias'])->name('perfiles.materias');
+            Route::post('/perfiles/{profesor}/materias', [JefaturaAsignacionesController::class, 'updateMaterias'])->name('perfiles.materias.update');
+            Route::get('/perfiles/{profesor}/carreras', [JefaturaAsignacionesController::class, 'carreras'])->name('perfiles.carreras');
+            Route::post('/perfiles/{profesor}/carreras', [JefaturaAsignacionesController::class, 'updateCarreras'])->name('perfiles.carreras.update');
+            Route::get('/perfiles/{profesor}/cursos', [JefaturaAsignacionesController::class, 'cursos'])->name('perfiles.cursos');
+            Route::post('/perfiles/{profesor}/cursos', [JefaturaAsignacionesController::class, 'updateCursos'])->name('perfiles.cursos.update');
+
+            // Cuentas: asociar con un perfil
+            Route::get('/usuarios', [JefaturaUsuariosController::class, 'index'])->name('usuarios');
+            Route::get('/usuarios/{user}/asociar', [JefaturaUsuariosController::class, 'asociar'])->name('usuarios.associate');
+            Route::post('/usuarios/{user}/asociar', [JefaturaUsuariosController::class, 'asociarStore'])->name('usuarios.associate.store');
+            Route::post('/usuarios/{user}/desvincular', [JefaturaUsuariosController::class, 'desvincular'])->name('usuarios.unlink');
+
+            // Carreras y materias de su área (sin eliminar)
+            Route::get('/carreras', [JefaturaCarrerasController::class, 'index'])->name('carreras.index');
+            Route::get('/carreras/{carrera}', [JefaturaCarrerasController::class, 'show'])->name('carreras.show');
+            Route::post('/carreras/{carrera}/materias', [JefaturaCarrerasController::class, 'storeMateria'])->name('carreras.materias.store');
+            Route::get('/materias/{materia}/editar', [JefaturaCarrerasController::class, 'editMateria'])->name('materias.edit');
+            Route::put('/materias/{materia}', [JefaturaCarrerasController::class, 'updateMateria'])->name('materias.update');
+
+            // Programas cargados de su área
+Route::get('/programas', [JefaturaProgramasController::class, 'index'])->name('programas.index');
+Route::get('/programas/carreras/{carrera}', [JefaturaProgramasController::class, 'show'])->name('programas.carrera');
+Route::get('/programas/historial/{profesor}/{materia}', [JefaturaProgramasController::class, 'historial'])->name('programas.historial');
+Route::delete('/programas/{programa}', [JefaturaProgramasController::class, 'destroy'])->name('programas.destroy');
         });
 
     // Consulta de programas (solo lectura): preceptor, EMTP y directivo

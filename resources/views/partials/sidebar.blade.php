@@ -29,6 +29,18 @@
         </details>
     @endif
 
+    @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_JEFE))
+        <details class="sidebar-section" data-section="jefe" open>
+            <summary>Jefatura</summary>
+            <nav class="sidebar-nav">
+                <a href="{{ route('jefatura.perfiles.index') }}">Perfiles</a>
+                <a href="{{ route('jefatura.usuarios') }}">Usuarios y roles</a>
+                <a href="{{ route('jefatura.carreras.index') }}">Carreras y materias</a>
+                <a href="{{ route('jefatura.programas.index') }}">Programas cargados</a>
+            </nav>
+        </details>
+    @endif
+
     @if(auth()->user()->tieneRol(\App\Models\Profesor::ROL_EMTP))
         <details class="sidebar-section" data-section="emtp" open>
             <summary>EMTP</summary>

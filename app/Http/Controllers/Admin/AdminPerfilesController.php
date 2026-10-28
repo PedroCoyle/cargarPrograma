@@ -168,15 +168,16 @@ class AdminPerfilesController extends Controller
     // ---------- Helpers ----------
 
     private function rolesValidos(): array
-    {
-        return [
-            Profesor::ROL_PROFESOR,
-            Profesor::ROL_PRECEPTOR,
-            Profesor::ROL_ADMIN,
-            Profesor::ROL_EMTP,
-            Profesor::ROL_DIRECTIVO,
-        ];
-    }
+{
+    return [
+        Profesor::ROL_PROFESOR,
+        Profesor::ROL_PRECEPTOR,
+        Profesor::ROL_ADMIN,
+        Profesor::ROL_EMTP,
+        Profesor::ROL_DIRECTIVO,
+        Profesor::ROL_JEFE,
+    ];
+}
 
     private function mensajes(): array
     {
